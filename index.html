@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Información del Dispositivo de la Imagen</title>
+    <link rel="stylesheet" href="CSS/Estilo.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exif-js/2.3.0/exif.min.js"></script>
+</head>
+<body>
+
+    <!-- Banner con color sólido y menos grueso -->
+    <div class="banner-solido">
+        <h1>Carpeta de fotos</h1>
+    </div>
+
+    <div class="caja-aclaraciones">
+        <h2>¡Atención!</h2>
+        <ul>
+            <li><strong>No hay orden automático</strong>: Las imágenes no se ordenan por nombre, fecha o cualquier otro criterio.</li>
+            <li><strong>Datos EXIF</strong>: Solo aparecen si las imágenes tienen la información incrustada. Si no, verás "Desconocido" en algunos campos.</li>
+        </ul>
+        <h2>Consejos</h2>
+        <ul>
+            <li>Usa imágenes directas de tu cámara para ver toda la información técnica.</li>
+            <li>Si no ves los datos EXIF, revisa que las imágenes no hayan sido editadas o comprimidas.</li>
+        </ul>
+
+        <div class="contacto">
+            <p>Dudas, quejas o sugerencias: <a href="mailto:blablablaris.bla@gmail.com">blablablaris.bla@gmail.com</a></p>
+        </div>
+    </div>
+
+    <div class="contenedor-botones">
+        <label for="entradaArchivos" class="boton-archivos">Seleccionar archivos</label>
+        <input type="file" id="entradaArchivos" multiple accept="image/*" style="display: none;">
+
+        <label for="entradaCarpeta" class="boton-carpeta">Seleccionar carpeta</label>
+        <input type="file" id="entradaCarpeta" webkitdirectory directory accept="image/*" style="display: none;">
+    </div>
+
+    <div class="lista-imagenes" id="listaImagenes"></div>
+
+    <div id="gifContainer"></div>
+
+    <script>
+        function formatShutterSpeed(shutterSpeed) {
+            if (!shutterSpeed) return 'N/A';
+            if (shutterSpeed < 1) {
+                const fraction = 1 / shutterSpeed;
+                return `1/${Math.round(fraction)}s`;
+            } else {
+                return `${shutterSpeed}s`;
+            }
+        }
+
+        function procesarArchivos(archivos) {
+            const listaImagenes = document.getElementById('listaImagenes');
+            listaImagenes.innerHTML = '';
+
+            Array.from(archivos).forEach(archivo => {
+                if (archivo.type.startsWith("image/")) {
+                    const lector = new FileReader();
+
+                    lector.onload = (e) => {
+                        const imagen = new Image();
+                        imagen.src = e.target.result;
+                        imagen.onload = () => {
+                            const item = document.createElement('div');
+                            item.classList.add('item-imagen');
+
+                            const nombreArchivo = document.createElement('div');
+                            nombreArchivo.classList.add('nombre-archivo');
+                            nombreArchivo.textContent = archivo.name;
+
+                            const divInfo = document.createElement('div');
+                            divInfo.classList.add('info-imagen');
+
+                            item.appendChild(nombreArchivo);
+                            item.appendChild(imagen);
+                            listaImagenes.appendChild(item);
+
+                            const { width, height } = imagen;
+                            const tamanio = (archivo.size / 1024).toFixed(2);
+                            const tamanioTexto = tamanio > 1024 ? (tamanio / 1024).toFixed(2) + ' MB' : tamanio + ' KB';
+
+                            EXIF.getData(imagen, () => {
+                                const exif = EXIF.getAllTags(imagen);
+                                const iso = exif.ISOSpeedRatings || "Desconocido";
+                                const numeroApertura = exif.FNumber ? exif.FNumber.toFixed(1) : "Desconocido";
+                                const velocidadObturacion = exif.ExposureTime || "Desconocido";
+                                const longitudFocal = exif.FocalLength || "Desconocido";
+                                const marca = exif.Make || "Desconocido";
+                                const modelo = exif.Model || "Desconocido";
+                                const fechaHora = exif.DateTime || "Desconocido";
+
+                                const formattedShutterSpeed = formatShutterSpeed(velocidadObturacion);
+
+                                divInfo.innerHTML = `
+                                    <p><strong>Resolución:</strong> ${width} x ${height}px</p>
+                                    <p><strong>Tamaño:</strong> ${tamanioTexto}</p>
+                                    <p><strong>Cámara:</strong> ${marca} ${modelo}</p>
+                                    <p><strong>Fecha:</strong> ${fechaHora}</p>
+                                    <p class="destacado"><strong>ISO:</strong> ${iso}</p>
+                                    <p class="destacado"><strong>Apertura:</strong> f/${numeroApertura}</p>
+                                    <p class="destacado"><strong>Velocidad de obturación:</strong> ${formattedShutterSpeed}</p>
+                                    <p><strong>Longitud focal:</strong> ${longitudFocal} mm</p>
+                                `;
+                                item.appendChild(divInfo);
+                            });
+                        };
+                    };
+
+                    lector.readAsDataURL(archivo);
+                }
+            });
+        }
+
+        document.getElementById('entradaArchivos').addEventListener('change', e => {
+            procesarArchivos(e.target.files);
+            resetInactivityTimer();
+        });
+
+        document.getElementById('entradaCarpeta').addEventListener('change', e => {
+            procesarArchivos(e.target.files);
+            resetInactivityTimer();
+        });
+
+        const gifContainer = document.getElementById('gifContainer');
+        const gifUrl = "https://i.pinimg.com/originals/05/fb/5f/05fb5faee5fa6cae86a5fbcdfb7792d0.gif";
+        let inactivityTime = 0;
+        const intervalTime = 2 * 60 * 1000;
+        const maxGifs = 8;
+        let gifCount = 0;
+        let inactivityInterval;
+
+        function resetInactivityTimer() {
+            inactivityTime = 0;
+            gifContainer.innerHTML = '';
+            gifCount = 0;
+        }
+
+        function showGif() {
+            if (gifCount >= maxGifs) {
+                resetInactivityTimer();
+                return;
+            }
+
+            const gif = document.createElement('img');
+            gif.src = gifUrl;
+            gif.classList.add('inactivity-gif');
+            gif.style.display = 'block';
+
+            if (gifCount % 2 === 0) {
+                gif.style.marginRight = 'auto';
+            } else {
+                gif.style.marginLeft = 'auto';
+            }
+
+            gifContainer.appendChild(gif);
+            gifCount++;
+        }
+
+        function checkInactivity() {
+            const listaImagenes = document.getElementById('listaImagenes');
+            if (listaImagenes.children.length === 0) {
+                inactivityTime += 1000;
+                if (inactivityTime % intervalTime === 0) {
+                    showGif();
+                }
+            }
+        }
+
+        function startInactivityTimer() {
+            inactivityInterval = setInterval(checkInactivity, 1000);
+        }
+
+        function stopInactivityTimer() {
+            clearInterval(inactivityInterval);
+        }
+
+        window.onload = startInactivityTimer;
+        window.onmousemove = resetInactivityTimer;
+        window.onmousedown = resetInactivityTimer;
+        window.ontouchstart = resetInactivityTimer;
+        window.onclick = resetInactivityTimer;
+        window.onkeypress = resetInactivityTimer;
+    </script>
+
+</body>
+</html>

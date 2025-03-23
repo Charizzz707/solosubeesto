@@ -1,0 +1,206 @@
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: white;
+    margin: 0;
+    padding: 0;
+}
+
+.banner-solido {
+    position: relative;
+    width: 100%;
+    height: 100px; /* Altura reducida del banner */
+    background-color: #e3f2fd; /* Color azul claro que combina con la caja de aclaraciones */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1001;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra suave */
+}
+
+.banner-solido h1 {
+    color: #1976d2; /* Color azul oscuro para el texto */
+    font-size: 2.5em; /* Tamaño de fuente ligeramente reducido */
+    margin: 0;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.caja-aclaraciones {
+    background-color: #e3f2fd;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px auto;
+    max-width: 800px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.caja-aclaraciones h2 {
+    color: #1976d2;
+    font-size: 1.5em;
+    margin-top: 0;
+}
+
+.caja-aclaraciones ul {
+    padding-left: 20px;
+}
+
+.caja-aclaraciones li {
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: #333;
+}
+
+.contenedor-botones {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin: 20px 0;
+    position: relative;
+    z-index: 1001;
+}
+
+.boton-archivos,
+.boton-carpeta {
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: 500;
+    color: white;
+    background-color: #4CAF50;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.boton-archivos:hover,
+.boton-carpeta:hover {
+    background-color: #45a049;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.boton-archivos:active,
+.boton-carpeta:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.boton-archivos {
+    background-color: #2196F3;
+}
+
+.boton-archivos:hover {
+    background-color: #1e88e5;
+}
+
+.boton-carpeta {
+    background-color: #FF9800;
+}
+
+.boton-carpeta:hover {
+    background-color: #fb8c00;
+}
+
+.lista-imagenes {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    padding: 20px;
+    position: relative;
+    z-index: 1001;
+}
+
+.item-imagen {
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    width: 250px;
+    padding: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.item-imagen:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.item-imagen img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+}
+
+.nombre-archivo {
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 10px;
+    text-align: center;
+    background-color: #f0f0f0;
+    padding: 8px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.info-imagen {
+    margin-top: 15px;
+    font-size: 14px;
+    color: #333;
+    text-align: left;
+}
+
+.info-imagen p {
+    margin: 8px 0;
+    line-height: 1.4;
+}
+
+.info-imagen strong {
+    color: #4CAF50;
+    font-weight: 500;
+}
+
+.destacado {
+    font-weight: 600;
+    color: #2196F3;
+}
+
+.contacto {
+    margin-top: 20px;
+    font-size: 14px;
+    color: #333;
+    text-align: left;
+}
+
+.contacto a {
+    color: #2196F3;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.contacto a:hover {
+    color: #1976d2;
+}
+
+#gifContainer {
+    position: fixed;
+    bottom: 20px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    z-index: 1000;
+    pointer-events: none;
+    padding: 0 20px;
+}
+
+.inactivity-gif {
+    width: 100px;
+    height: auto;
+    display: none;
+}
