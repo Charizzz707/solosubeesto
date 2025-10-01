@@ -15,18 +15,18 @@
         .banner-solido {
             position: relative;
             width: 100%;
-            height: 100px; /* Altura reducida del banner */
-            background-color: #e3f2fd; /* Color azul claro que combina con la caja de aclaraciones */
+            height: 100px;
+            background-color: #e3f2fd;
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 1001;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra suave */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .banner-solido h1 {
-            color: #1976d2; /* Color azul oscuro para el texto */
-            font-size: 2.5em; /* Tamaño de fuente ligeramente reducido */
+            color: #1976d2;
+            font-size: 2.5em;
             margin: 0;
             font-weight: 600;
             white-space: nowrap;
@@ -232,12 +232,10 @@
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/exif-js/2.3.0/exif.min.js"></script>
-    <!-- Biblioteca para generar Excel -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
 
-    <!-- Banner con color sólido y menos grueso -->
     <div class="banner-solido">
         <h1>Carpeta de fotos</h1>
     </div>
@@ -245,7 +243,6 @@
     <div class="caja-aclaraciones">
         <h2>¡Atención!</h2>
         <ul>
-            <li><strong>No hay orden automático</strong>: Las imágenes no se ordenan por nombre, fecha o cualquier otro criterio.</li>
             <li><strong>Datos EXIF</strong>: Solo aparecen si las imágenes tienen la información incrustada. Si no, verás "Desconocido" en algunos campos.</li>
         </ul>
         <h2>Consejos</h2>
@@ -255,7 +252,7 @@
         </ul>
 
         <div class="contacto">
-            <p>Dudas, quejas o sugerencias: <a href="mailto:blablablaris.bla@gmail.com">blablablaris.bla@gmail.com</a></p>
+            <p>Dudas, quejas o sugerencias: <a href="mailto:unmazapan14@gmail.com">unmazapan14@gmail.com</a></p>
         </div>
     </div>
 
@@ -274,8 +271,8 @@
     <div id="gifContainer"></div>
 
     <script>
-        // Array para almacenar los datos de todas las imágenes
         let imagenesData = [];
+        let archivosOrdenados = [];
 
         function formatShutterSpeed(shutterSpeed) {
             if (!shutterSpeed) return 'N/A';
@@ -287,39 +284,17 @@
             }
         }
 
-        // Función para ordenar archivos por nombre
+        // Función mejorada para ordenar archivos por nombre
         function ordenarArchivos(archivos) {
             return Array.from(archivos).sort((a, b) => {
                 const nombreA = a.name.toLowerCase();
                 const nombreB = b.name.toLowerCase();
 
-                // Extraer números y letras para ordenar correctamente
-                const regex = /(\d+)|([^\d]+)/g;
-                const partesA = nombreA.match(regex);
-                const partesB = nombreB.match(regex);
-
-                // Comparar cada parte
-                for (let i = 0; i < Math.min(partesA.length, partesB.length); i++) {
-                    const parteA = partesA[i];
-                    const parteB = partesB[i];
-
-                    // Si ambas partes son números, comparar numéricamente
-                    if (!isNaN(parteA) && !isNaN(parteB)) {
-                        const numA = parseInt(parteA);
-                        const numB = parseInt(parteB);
-                        if (numA !== numB) {
-                            return numA - numB;
-                        }
-                    } else {
-                        // Comparar alfabéticamente
-                        if (parteA !== parteB) {
-                            return parteA.localeCompare(parteB);
-                        }
-                    }
-                }
-
-                // Si todas las partes son iguales, comparar por longitud
-                return partesA.length - partesB.length;
+                // Usar comparación natural que entiende números y letras
+                return nombreA.localeCompare(nombreB, undefined, {
+                    numeric: true,
+                    sensitivity: 'base'
+                });
             });
         }
 
@@ -329,79 +304,94 @@
             imagenesData = [];
 
             // Ordenar archivos antes de procesarlos
-            const archivosOrdenados = ordenarArchivos(archivos);
+            archivosOrdenados = ordenarArchivos(archivos);
 
-            archivosOrdenados.forEach((archivo, index) => {
-                if (archivo.type.startsWith("image/")) {
-                    const lector = new FileReader();
+            // Procesar cada archivo en orden
+            procesarArchivoPorIndice(0);
+        }
 
-                    lector.onload = (e) => {
-                        const imagen = new Image();
-                        imagen.src = e.target.result;
-                        imagen.onload = () => {
-                            const item = document.createElement('div');
-                            item.classList.add('item-imagen');
-
-                            const nombreArchivo = document.createElement('div');
-                            nombreArchivo.classList.add('nombre-archivo');
-                            nombreArchivo.textContent = archivo.name;
-
-                            const divInfo = document.createElement('div');
-                            divInfo.classList.add('info-imagen');
-
-                            item.appendChild(nombreArchivo);
-                            item.appendChild(imagen);
-                            listaImagenes.appendChild(item);
-
-                            const { width, height } = imagen;
-                            const tamanio = (archivo.size / 1024).toFixed(2);
-                            const tamanioTexto = tamanio > 1024 ? (tamanio / 1024).toFixed(2) + ' MB' : tamanio + ' KB';
-
-                            EXIF.getData(imagen, () => {
-                                const exif = EXIF.getAllTags(imagen);
-                                const iso = exif.ISOSpeedRatings || "Desconocido";
-                                const numeroApertura = exif.FNumber ? exif.FNumber.toFixed(1) : "Desconocido";
-                                const velocidadObturacion = exif.ExposureTime || "Desconocido";
-                                const longitudFocal = exif.FocalLength || "Desconocido";
-                                const marca = exif.Make || "Desconocido";
-                                const modelo = exif.Model || "Desconocido";
-                                const fechaHora = exif.DateTime || "Desconocido";
-
-                                const formattedShutterSpeed = formatShutterSpeed(velocidadObturacion);
-
-                                divInfo.innerHTML = `
-                                    <p><strong>Resolución:</strong> ${width} x ${height}px</p>
-                                    <p><strong>Tamaño:</strong> ${tamanioTexto}</p>
-                                    <p><strong>Cámara:</strong> ${marca} ${modelo}</p>
-                                    <p><strong>Fecha:</strong> ${fechaHora}</p>
-                                    <p class="destacado"><strong>ISO:</strong> ${iso}</p>
-                                    <p class="destacado"><strong>Apertura:</strong> f/${numeroApertura}</p>
-                                    <p class="destacado"><strong>Velocidad de obturación:</strong> ${formattedShutterSpeed}</p>
-                                    <p><strong>Longitud focal:</strong> ${longitudFocal} mm</p>
-                                `;
-                                item.appendChild(divInfo);
-
-                                // Guardar datos para la tabla Excel
-                                imagenesData.push({
-                                    numero: index + 1,
-                                    nombre: archivo.name,
-                                    iso: iso,
-                                    apertura: numeroApertura,
-                                    velocidadObturacion: formattedShutterSpeed,
-                                    longitudFocal: longitudFocal
-                                });
-
-                                // Habilitar el botón de crear tabla si hay imágenes
-                                if (imagenesData.length > 0) {
-                                    document.getElementById('botonTabla').disabled = false;
-                                }
-                            });
-                        };
-                    };
-
-                    lector.readAsDataURL(archivo);
+        function procesarArchivoPorIndice(index) {
+            if (index >= archivosOrdenados.length) {
+                // Todos los archivos procesados, habilitar botón de tabla
+                if (imagenesData.length > 0) {
+                    document.getElementById('botonTabla').disabled = false;
                 }
-            });
+                return;
+            }
+
+            const archivo = archivosOrdenados[index];
+
+            if (archivo.type.startsWith("image/")) {
+                const lector = new FileReader();
+
+                lector.onload = (e) => {
+                    const imagen = new Image();
+                    imagen.src = e.target.result;
+                    imagen.onload = () => {
+                        const item = document.createElement('div');
+                        item.classList.add('item-imagen');
+
+                        const nombreArchivo = document.createElement('div');
+                        nombreArchivo.classList.add('nombre-archivo');
+                        nombreArchivo.textContent = archivo.name;
+
+                        const divInfo = document.createElement('div');
+                        divInfo.classList.add('info-imagen');
+
+                        item.appendChild(nombreArchivo);
+                        item.appendChild(imagen);
+
+                        // Añadir al DOM inmediatamente para mantener orden
+                        document.getElementById('listaImagenes').appendChild(item);
+
+                        const { width, height } = imagen;
+                        const tamanio = (archivo.size / 1024).toFixed(2);
+                        const tamanioTexto = tamanio > 1024 ? (tamanio / 1024).toFixed(2) + ' MB' : tamanio + ' KB';
+
+                        EXIF.getData(imagen, () => {
+                            const exif = EXIF.getAllTags(imagen);
+                            const iso = exif.ISOSpeedRatings || "Desconocido";
+                            const numeroApertura = exif.FNumber ? exif.FNumber.toFixed(1) : "Desconocido";
+                            const velocidadObturacion = exif.ExposureTime || "Desconocido";
+                            const longitudFocal = exif.FocalLength ? exif.FocalLength + " mm" : "Desconocido";
+                            const marca = exif.Make || "Desconocido";
+                            const modelo = exif.Model || "Desconocido";
+                            const fechaHora = exif.DateTime || "Desconocido";
+
+                            const formattedShutterSpeed = formatShutterSpeed(velocidadObturacion);
+
+                            divInfo.innerHTML = `
+                                <p><strong>Resolución:</strong> ${width} x ${height}px</p>
+                                <p><strong>Tamaño:</strong> ${tamanioTexto}</p>
+                                <p><strong>Cámara:</strong> ${marca} ${modelo}</p>
+                                <p><strong>Fecha:</strong> ${fechaHora}</p>
+                                <p class="destacado"><strong>ISO:</strong> ${iso}</p>
+                                <p class="destacado"><strong>Apertura:</strong> f/${numeroApertura}</p>
+                                <p class="destacado"><strong>Velocidad de obturación:</strong> ${formattedShutterSpeed}</p>
+                                <p><strong>Longitud focal:</strong> ${longitudFocal}</p>
+                            `;
+                            item.appendChild(divInfo);
+
+                            // Guardar datos para la tabla Excel - SOLO los campos solicitados
+                            imagenesData.push({
+                                nombre: archivo.name,
+                                iso: iso,
+                                apertura: numeroApertura,
+                                velocidadObturacion: formattedShutterSpeed,
+                                longitudFocal: longitudFocal
+                            });
+
+                            // Procesar el siguiente archivo
+                            procesarArchivoPorIndice(index + 1);
+                        });
+                    };
+                };
+
+                lector.readAsDataURL(archivo);
+            } else {
+                // Si no es imagen, pasar al siguiente
+                procesarArchivoPorIndice(index + 1);
+            }
         }
 
         // Función para crear la tabla Excel
@@ -411,14 +401,13 @@
                 return;
             }
 
-            // Preparar datos para la hoja de cálculo
+            // Preparar datos para la hoja de cálculo - SOLO los campos solicitados
             const datos = [
-                ['No. de imagen', 'Nombre de la foto', 'ISO', 'Apertura (f/)', 'Velocidad de obturación', 'Longitud focal (mm)']
+                ['Nombre de la imagen', 'ISO', 'Apertura (f/)', 'Velocidad de obturación', 'Longitud focal']
             ];
 
             imagenesData.forEach(imagen => {
                 datos.push([
-                    imagen.numero,
                     imagen.nombre,
                     imagen.iso,
                     imagen.apertura,
@@ -433,8 +422,7 @@
 
             // Ajustar el ancho de las columnas
             const columnas = [
-                {wch: 12}, // No. de imagen
-                {wch: 30}, // Nombre de la foto
+                {wch: 30}, // Nombre de la imagen
                 {wch: 10}, // ISO
                 {wch: 12}, // Apertura
                 {wch: 22}, // Velocidad de obturación
@@ -462,7 +450,7 @@
 
         document.getElementById('botonTabla').addEventListener('click', crearTablaExcel);
 
-        // Código para el GIF de inactividad (sin cambios)
+        // Código para el GIF de inactividad
         const gifContainer = document.getElementById('gifContainer');
         const gifUrl = "https://i.pinimg.com/originals/05/fb/5f/05fb5faee5fa6cae86a5fbcdfb7792d0.gif";
         let inactivityTime = 0;
