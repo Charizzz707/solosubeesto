@@ -4,9 +4,236 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Información del Dispositivo de la Imagen</title>
-    <link rel="stylesheet" href="CSS/Estilo.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: white;
+            margin: 0;
+            padding: 0;
+        }
+
+        .banner-solido {
+            position: relative;
+            width: 100%;
+            height: 100px; /* Altura reducida del banner */
+            background-color: #e3f2fd; /* Color azul claro que combina con la caja de aclaraciones */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1001;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra suave */
+        }
+
+        .banner-solido h1 {
+            color: #1976d2; /* Color azul oscuro para el texto */
+            font-size: 2.5em; /* Tamaño de fuente ligeramente reducido */
+            margin: 0;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .caja-aclaraciones {
+            background-color: #e3f2fd;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 800px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .caja-aclaraciones h2 {
+            color: #1976d2;
+            font-size: 1.5em;
+            margin-top: 0;
+        }
+
+        .caja-aclaraciones ul {
+            padding-left: 20px;
+        }
+
+        .caja-aclaraciones li {
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .contenedor-botones {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+            position: relative;
+            z-index: 1001;
+            flex-wrap: wrap;
+        }
+
+        .boton-archivos,
+        .boton-carpeta,
+        .boton-tabla {
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 500;
+            color: white;
+            background-color: #4CAF50;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .boton-archivos:hover,
+        .boton-carpeta:hover,
+        .boton-tabla:hover {
+            background-color: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .boton-archivos:active,
+        .boton-carpeta:active,
+        .boton-tabla:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .boton-archivos {
+            background-color: #2196F3;
+        }
+
+        .boton-archivos:hover {
+            background-color: #1e88e5;
+        }
+
+        .boton-carpeta {
+            background-color: #FF9800;
+        }
+
+        .boton-carpeta:hover {
+            background-color: #fb8c00;
+        }
+
+        .boton-tabla {
+            background-color: #9C27B0;
+        }
+
+        .boton-tabla:hover {
+            background-color: #8E24AA;
+        }
+
+        .boton-tabla:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .lista-imagenes {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+            position: relative;
+            z-index: 1001;
+        }
+
+        .item-imagen {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            width: 250px;
+            padding: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .item-imagen:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .item-imagen img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        .nombre-archivo {
+            font-size: 16px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+            background-color: #f0f0f0;
+            padding: 8px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .info-imagen {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #333;
+            text-align: left;
+        }
+
+        .info-imagen p {
+            margin: 8px 0;
+            line-height: 1.4;
+        }
+
+        .info-imagen strong {
+            color: #4CAF50;
+            font-weight: 500;
+        }
+
+        .destacado {
+            font-weight: 600;
+            color: #2196F3;
+        }
+
+        .contacto {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #333;
+            text-align: left;
+        }
+
+        .contacto a {
+            color: #2196F3;
+            font-weight: 600;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .contacto a:hover {
+            color: #1976d2;
+        }
+
+        #gifContainer {
+            position: fixed;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            z-index: 1000;
+            pointer-events: none;
+            padding: 0 20px;
+        }
+
+        .inactivity-gif {
+            width: 100px;
+            height: auto;
+            display: none;
+        }
+    </style>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/exif-js/2.3.0/exif.min.js"></script>
+    <!-- Biblioteca para generar Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
 
@@ -38,6 +265,8 @@
 
         <label for="entradaCarpeta" class="boton-carpeta">Seleccionar carpeta</label>
         <input type="file" id="entradaCarpeta" webkitdirectory directory accept="image/*" style="display: none;">
+
+        <button id="botonTabla" class="boton-tabla" disabled>Crear tabla</button>
     </div>
 
     <div class="lista-imagenes" id="listaImagenes"></div>
@@ -45,6 +274,9 @@
     <div id="gifContainer"></div>
 
     <script>
+        // Array para almacenar los datos de todas las imágenes
+        let imagenesData = [];
+
         function formatShutterSpeed(shutterSpeed) {
             if (!shutterSpeed) return 'N/A';
             if (shutterSpeed < 1) {
@@ -55,11 +287,51 @@
             }
         }
 
+        // Función para ordenar archivos por nombre
+        function ordenarArchivos(archivos) {
+            return Array.from(archivos).sort((a, b) => {
+                const nombreA = a.name.toLowerCase();
+                const nombreB = b.name.toLowerCase();
+
+                // Extraer números y letras para ordenar correctamente
+                const regex = /(\d+)|([^\d]+)/g;
+                const partesA = nombreA.match(regex);
+                const partesB = nombreB.match(regex);
+
+                // Comparar cada parte
+                for (let i = 0; i < Math.min(partesA.length, partesB.length); i++) {
+                    const parteA = partesA[i];
+                    const parteB = partesB[i];
+
+                    // Si ambas partes son números, comparar numéricamente
+                    if (!isNaN(parteA) && !isNaN(parteB)) {
+                        const numA = parseInt(parteA);
+                        const numB = parseInt(parteB);
+                        if (numA !== numB) {
+                            return numA - numB;
+                        }
+                    } else {
+                        // Comparar alfabéticamente
+                        if (parteA !== parteB) {
+                            return parteA.localeCompare(parteB);
+                        }
+                    }
+                }
+
+                // Si todas las partes son iguales, comparar por longitud
+                return partesA.length - partesB.length;
+            });
+        }
+
         function procesarArchivos(archivos) {
             const listaImagenes = document.getElementById('listaImagenes');
             listaImagenes.innerHTML = '';
+            imagenesData = [];
 
-            Array.from(archivos).forEach(archivo => {
+            // Ordenar archivos antes de procesarlos
+            const archivosOrdenados = ordenarArchivos(archivos);
+
+            archivosOrdenados.forEach((archivo, index) => {
                 if (archivo.type.startsWith("image/")) {
                     const lector = new FileReader();
 
@@ -108,6 +380,21 @@
                                     <p><strong>Longitud focal:</strong> ${longitudFocal} mm</p>
                                 `;
                                 item.appendChild(divInfo);
+
+                                // Guardar datos para la tabla Excel
+                                imagenesData.push({
+                                    numero: index + 1,
+                                    nombre: archivo.name,
+                                    iso: iso,
+                                    apertura: numeroApertura,
+                                    velocidadObturacion: formattedShutterSpeed,
+                                    longitudFocal: longitudFocal
+                                });
+
+                                // Habilitar el botón de crear tabla si hay imágenes
+                                if (imagenesData.length > 0) {
+                                    document.getElementById('botonTabla').disabled = false;
+                                }
                             });
                         };
                     };
@@ -117,6 +404,52 @@
             });
         }
 
+        // Función para crear la tabla Excel
+        function crearTablaExcel() {
+            if (imagenesData.length === 0) {
+                alert('No hay datos para exportar. Primero selecciona algunas imágenes.');
+                return;
+            }
+
+            // Preparar datos para la hoja de cálculo
+            const datos = [
+                ['No. de imagen', 'Nombre de la foto', 'ISO', 'Apertura (f/)', 'Velocidad de obturación', 'Longitud focal (mm)']
+            ];
+
+            imagenesData.forEach(imagen => {
+                datos.push([
+                    imagen.numero,
+                    imagen.nombre,
+                    imagen.iso,
+                    imagen.apertura,
+                    imagen.velocidadObturacion,
+                    imagen.longitudFocal
+                ]);
+            });
+
+            // Crear libro de trabajo y hoja
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.aoa_to_sheet(datos);
+
+            // Ajustar el ancho de las columnas
+            const columnas = [
+                {wch: 12}, // No. de imagen
+                {wch: 30}, // Nombre de la foto
+                {wch: 10}, // ISO
+                {wch: 12}, // Apertura
+                {wch: 22}, // Velocidad de obturación
+                {wch: 18}  // Longitud focal
+            ];
+            ws['!cols'] = columnas;
+
+            // Añadir la hoja al libro
+            XLSX.utils.book_append_sheet(wb, ws, 'Datos de Imágenes');
+
+            // Generar el archivo Excel y descargarlo
+            XLSX.writeFile(wb, 'datos_imagenes.xlsx');
+        }
+
+        // Event listeners
         document.getElementById('entradaArchivos').addEventListener('change', e => {
             procesarArchivos(e.target.files);
             resetInactivityTimer();
@@ -127,6 +460,9 @@
             resetInactivityTimer();
         });
 
+        document.getElementById('botonTabla').addEventListener('click', crearTablaExcel);
+
+        // Código para el GIF de inactividad (sin cambios)
         const gifContainer = document.getElementById('gifContainer');
         const gifUrl = "https://i.pinimg.com/originals/05/fb/5f/05fb5faee5fa6cae86a5fbcdfb7792d0.gif";
         let inactivityTime = 0;
