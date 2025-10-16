@@ -252,7 +252,7 @@
         </ul>
 
         <div class="contacto">
-            <p>Dudas, quejas o sugerencias: <a href="mailto:unmazapan14@gmail.com">unmazapan14@gmail.com</a></p>
+            <p>Dudas, quejas, sugerencias o apoyo por PayPal: <a href="mailto:charisgomezzz626@gmail.com">charisgomezzz626@gmail.com</a></p>
         </div>
     </div>
 
@@ -281,6 +281,29 @@
                 return `1/${Math.round(fraction)}s`;
             } else {
                 return `${shutterSpeed}s`;
+            }
+        }
+
+        // Función para formatear la fecha y hora
+        function formatDateTime(dateTimeString) {
+            if (!dateTimeString || dateTimeString === "Desconocido") return "Desconocido";
+            
+            try {
+                // El formato EXIF suele ser "YYYY:MM:DD HH:MM:SS"
+                const parts = dateTimeString.split(' ');
+                const dateParts = parts[0].split(':');
+                const timeParts = parts[1].split(':');
+                
+                const year = dateParts[0];
+                const month = dateParts[1];
+                const day = dateParts[2];
+                const hour = timeParts[0];
+                const minute = timeParts[1];
+                const second = timeParts[2];
+                
+                return `${day}/${month}/${year} ${hour}:${minute}:${second}`;
+            } catch (error) {
+                return dateTimeString;
             }
         }
 
@@ -359,12 +382,13 @@
                             const fechaHora = exif.DateTime || "Desconocido";
 
                             const formattedShutterSpeed = formatShutterSpeed(velocidadObturacion);
+                            const formattedDateTime = formatDateTime(fechaHora);
 
                             divInfo.innerHTML = `
                                 <p><strong>Resolución:</strong> ${width} x ${height}px</p>
                                 <p><strong>Tamaño:</strong> ${tamanioTexto}</p>
                                 <p><strong>Cámara:</strong> ${marca} ${modelo}</p>
-                                <p><strong>Fecha:</strong> ${fechaHora}</p>
+                                <p><strong>Fecha:</strong> ${formattedDateTime}</p>
                                 <p class="destacado"><strong>ISO:</strong> ${iso}</p>
                                 <p class="destacado"><strong>Apertura:</strong> f/${numeroApertura}</p>
                                 <p class="destacado"><strong>Velocidad de obturación:</strong> ${formattedShutterSpeed}</p>
@@ -372,13 +396,14 @@
                             `;
                             item.appendChild(divInfo);
 
-                            // Guardar datos para la tabla Excel - SOLO los campos solicitados
+                            // Guardar datos para la tabla Excel - INCLUYENDO fecha y hora
                             imagenesData.push({
                                 nombre: archivo.name,
                                 iso: iso,
                                 apertura: numeroApertura,
                                 velocidadObturacion: formattedShutterSpeed,
-                                longitudFocal: longitudFocal
+                                longitudFocal: longitudFocal,
+                                fechaHora: formattedDateTime
                             });
 
                             // Procesar el siguiente archivo
@@ -401,9 +426,9 @@
                 return;
             }
 
-            // Preparar datos para la hoja de cálculo - SOLO los campos solicitados
+            // Preparar datos para la hoja de cálculo - INCLUYENDO fecha y hora
             const datos = [
-                ['Nombre de la imagen', 'ISO', 'Apertura (f/)', 'Velocidad de obturación', 'Longitud focal']
+                ['Nombre de la imagen', 'ISO', 'Apertura (f/)', 'Velocidad de obturación', 'Longitud focal', 'Fecha y hora']
             ];
 
             imagenesData.forEach(imagen => {
@@ -412,7 +437,8 @@
                     imagen.iso,
                     imagen.apertura,
                     imagen.velocidadObturacion,
-                    imagen.longitudFocal
+                    imagen.longitudFocal,
+                    imagen.fechaHora
                 ]);
             });
 
@@ -426,7 +452,8 @@
                 {wch: 10}, // ISO
                 {wch: 12}, // Apertura
                 {wch: 22}, // Velocidad de obturación
-                {wch: 18}  // Longitud focal
+                {wch: 18}, // Longitud focal
+                {wch: 20}  // Fecha y hora
             ];
             ws['!cols'] = columnas;
 
